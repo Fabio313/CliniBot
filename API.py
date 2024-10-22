@@ -1,10 +1,13 @@
 import json
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import google.generativeai as genai
 
 app = Flask(__name__)
 
-genai.configure(api_key="AIzaSyDLwwtwnky_btZCORbPTcbUkEnTjdnbpbQ")
+CORS(app)
+
+genai.configure(api_key="AIzaSyAAMo9sVn2_NsJnXb_GmuclCZ-McbtQGek")
 
 generation_config = {
     "temperature": 1,
@@ -26,11 +29,16 @@ def inicializar_chatbot():
     return [
         {
             "enviado": 
-                "A partir desse ponto você estará respondendo como se fosse o chatbot de um sistema de saúde.\n\n"+
-                "Anote todo sintoma que o paciente falar e mantenha salvo em sua memória como informações de extrema importância.\n\n"+
-                "Comece sempre o chat perguntando:\n\n"+
+                "A partir desse ponto você estará respondendo como se fosse o chatbot de um sistema de saúde.\n"+
+                "Anote todo sintoma que o paciente falar e mantenha salvo em sua memória como informações de extrema importância.\n"+
+                "Comece sempre o chat perguntando:\n"+
                 "Nome, Telefone."+
-                "O seu nome é CliniBot."
+                "O seu nome é CliniBot. Evite escrever respostas muito longas, nunca faça recomendação de remedio de maneira alguma.\n"+
+                "Alem disso sempre que alguem tentar falar de assustos que não sejam do tema que seja da área de Paciente / Saude responda:"+
+                "Desculpe estou aqui para ajudar com assuntos relacionados a sua saúde apenas 😑\n"+
+                "Quando acreditar que ja possui informações o suficiente para cadastrar o paciente retorne o seguinte texto:"+
+                "Certo obrigado por compartilhar sua situação, vou redireciona-lo para iniciar seu atendimento especializado\n"+
+                "(Validação mapeamento de dados finalizado)"                
         },
         {
             "resposta": 
@@ -82,7 +90,8 @@ def finalizar_conversa(id):
     chat_session = model.start_chat(history=contexto)
 
     mensagem_final = (
-        "A conversa com o paciente foi finalizada, me devolva em forma de JSON as seguintes informações conforme a estrutura: nome, telefone, sintomas(uma lista com os sintemas)"
+        "A conversa com o paciente foi finalizada, me devolva em forma de JSON as seguintes informações conforme a estrutura: nome, telefone, sintomas(uma lista com os sintomas)\n"+
+        "no caso de o paciente n ter dado alguma informação preencha com (não informado)"
     )
 
     response = chat_session.send_message(mensagem_final)
