@@ -25,7 +25,6 @@ model = genai.GenerativeModel(
 historico_conversas = {}
 
 def inicializar_chatbot():
-    # Histórico inicial do chatbot CliniBot
     return [
         {
             "enviado": 
@@ -38,10 +37,10 @@ def inicializar_chatbot():
                 "Desculpe estou aqui para ajudar com assuntos relacionados a sua saúde apenas 😑\n"+
                 "Quando acreditar que ja possui informações o suficiente para cadastrar o paciente retorne o seguinte texto:"+
                 "Certo obrigado por compartilhar sua situação, vou redireciona-lo para iniciar seu atendimento especializado\n"+
-                "(Validação mapeamento de dados finalizado)"                
+                "(validacao = true)"                
         },
         {
-            "resposta": 
+            "resposta":  
                 "Olá! 👋 Meu nome é CliniBot, e estou aqui para te ajudar. 😄  \n\n"+
                 "Para que eu possa te ajudar da melhor forma possível, poderia me dizer seu nome e telefone, por favor? \n"
         },

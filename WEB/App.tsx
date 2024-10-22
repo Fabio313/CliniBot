@@ -9,13 +9,14 @@ interface Message {
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([]); 
   const [inputText, setInputText] = useState('');
+  const [isFinish, setIsFinish] = useState(false);
 
   useEffect(() => {
     const initialMessage: Message = {
       text: "Olá! 👋 Meu nome é CliniBot. Para que eu possa te ajudar, poderia me dizer seu nome e telefone?",
       sender: 'bot',
     };
-    setMessages([initialMessage]); // Define a mensagem inicial
+    setMessages([initialMessage]);
   }, []);
 
   const sendMessage = async () => {
@@ -40,6 +41,11 @@ export default function App() {
   
         const data = await response.json();
   
+        if(data.resposta.includes("(validacao = true)")){
+          data.resposta = data.resposta.replace("(validacao = true)", "");
+          setIsFinish(true);
+        }
+
         const botMessage: Message = {
           text: data.resposta || 'Resposta não encontrada', 
           sender: 'bot',
@@ -54,13 +60,21 @@ export default function App() {
         };
         setMessages((prevMessages) => [...prevMessages, errorMessage]);
       }
-      finally
-      {
+      finally {
         setInputText('');
       }
     }
   };
-  
+
+  const handleFinish = async () => {
+    const response = await fetch('localhost:8080/finalizar/1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(response.json());
+  };
 
   const renderMessage = ({ item }: { item: Message }) => (
     <View
@@ -74,7 +88,6 @@ export default function App() {
   );
 
   return (
-    
     <View style={styles.container}>
       <FlatList
         data={messages}
@@ -85,15 +98,26 @@ export default function App() {
 
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, isFinish && styles.disabledInput]}
           placeholder="Digite sua mensagem..."
           value={inputText}
           onChangeText={setInputText}
+          editable={!isFinish} 
         />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={styles.sendButtonText}>Enviar</Text>
+        <TouchableOpacity 
+          style={[styles.sendButton, isFinish && styles.disabledButton]} 
+          onPress={sendMessage}
+          disabled={isFinish} 
+        >
+          <Text style={[styles.sendButtonText, isFinish && styles.disabledButtonText]}>Enviar</Text>
         </TouchableOpacity>
       </View>
+
+      {isFinish && (
+        <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
+          <Text style={styles.finishButtonText}>Finalizar</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -124,6 +148,9 @@ const styles = StyleSheet.create({
     borderColor: '#B3E5FC',
     borderWidth: 1,
   },
+  disabledInput: {
+    backgroundColor: '#d3d3d3', 
+  },
   sendButton: {
     backgroundColor: '#4FC3F7',
     paddingHorizontal: 15,
@@ -131,9 +158,15 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginLeft: 10,
   },
+  disabledButton: {
+    backgroundColor: '#cccccc', 
+  },
   sendButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  disabledButtonText: {
+    color: '#666666', 
   },
   messageBubble: {
     padding: 10,
@@ -153,5 +186,19 @@ const styles = StyleSheet.create({
   },
   messageText: {
     color: '#333',
+  },
+  finishButton: {
+    position: 'absolute',
+    top: '50%',
+    alignSelf: 'center',
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 25,
+  },
+  finishButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 });
