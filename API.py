@@ -100,6 +100,8 @@ def finalizar_conversa(id):
                                     .replace("\n", "") \
                                     .replace("'", "") \
                                     .strip()
+                                    
+    del historico_conversas[id]
 
     try:
         resposta_json = json.loads(resposta_string)

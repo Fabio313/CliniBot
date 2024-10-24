@@ -32,7 +32,7 @@ export default function App() {
           },
           body: JSON.stringify({
             texto: inputText,
-          }),
+          }), 
         });
   
         if (!response.ok) {
@@ -67,13 +67,13 @@ export default function App() {
   };
 
   const handleFinish = async () => {
-    const response = await fetch('localhost:8080/finalizar/1', {
+    const response = await fetch('http://localhost:8080/finalizar/1', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    console.log(response.json());
+    console.log(await response.json());
   };
 
   const renderMessage = ({ item }: { item: Message }) => (
